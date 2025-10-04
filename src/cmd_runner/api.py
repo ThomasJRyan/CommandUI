@@ -7,15 +7,15 @@ from fastapi import WebSocket, WebSocketDisconnect
 
 from starlette.websockets import WebSocketState
 
-from pyats_runner.engine import Engine
+from cmd_runner.engine import Engine
 
 
-class PyATSRunnerAPI(FastAPI):
+class CmdRunnerAPI(FastAPI):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
 @asynccontextmanager
-async def lifespan(app: PyATSRunnerAPI):
+async def lifespan(app: CmdRunnerAPI):
     app.state.engine = Engine()
     engine_task = asyncio.create_task(app.state.engine.run_forever())
     yield
@@ -26,7 +26,7 @@ async def lifespan(app: PyATSRunnerAPI):
     except asyncio.CancelledError:
         pass
 
-app = PyATSRunnerAPI(lifespan=lifespan)
+app = CmdRunnerAPI(lifespan=lifespan)
 
 @app.get("/")
 async def read_root():
@@ -34,7 +34,7 @@ async def read_root():
 
 @app.post("/queue_job/")
 async def queue_job(job_script: str = "", testbed: str = ""):
-    """Endpoint to queue a pyATS job script for execution."""
+    """Endpoint to queue a command for execution."""
     job_script = "_testing/jobs/basic_job.py"
     testbed = "_testing/testbeds/local_testbed.yaml"
     # job_cmd = ("pyats", "run", "job", job_script, "--testbed-file", testbed)
@@ -53,7 +53,7 @@ async def get_running_jobs():
 async def websocket_job_stdout(websocket: WebSocket, job_id: str):
     await websocket.accept()
     engine = app.state.engine
-    
+
     if job_id not in engine.running_jobs:
         await websocket.send_text(f"Job {job_id} not found.")
         await websocket.close()
