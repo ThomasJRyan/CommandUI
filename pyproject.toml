@@ -1,0 +1,28 @@
+[project]
+name = "pyats-runner"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Thomas Ryan", email = "contact@thomasryan.ca" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.118.0",
+    "pyats[full]",
+    "typer>=0.19.2",
+    "uvicorn",
+]
+
+[project.scripts]
+pyats-runner = "pyats_runner:cli"
+
+[build-system]
+requires = ["uv_build>=0.8.17,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipython>=9.6.0",
+    "websockets>=15.0.1",
+]
